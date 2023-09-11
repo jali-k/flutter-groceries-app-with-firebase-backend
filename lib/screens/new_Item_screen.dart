@@ -24,22 +24,36 @@ class _NewItemScreenState extends State<NewItemScreen> {
     var _enteredQuantity = 0;
     var _selectedCategory = categories[Categories.vegetables];
 
-    void _saveItem() {
+    void _saveItem() async {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
         final url = Uri.https(
             'flutter-shop-app-cc6dc-default-rtdb.firebaseio.com',
             'shopping-list.json');
-        http.post(url,
-            headers: {
-              'Content-Type':
-                  'application/json' //Tells that this obj is in json format
-            },
-            body: json.encode({
+        final response = await http.post(
+          url,
+          headers: {
+            'Content-Type':
+                'application/json' //Tells that this obj is in json format
+          },
+          body: json.encode(
+            {
               'name': _enteredName,
               'quantity': _enteredQuantity,
               'category': _selectedCategory!.name
-            })); // encode the body as a json obj
+            },
+          ),
+        ); // encode the body as a json obj
+
+        print(response.body);
+        print(response.statusCode);
+
+        if (!context.mounted) {
+          // This checks whether the current context is mounted yet to the screen, (Is the screen visible yet?)
+          return;
+        }
+
+        Navigator.of(context).pop();
       }
     }
 
