@@ -41,6 +41,7 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
       setState(() {
         _isLoading = false;
       });
+      return;
     }
     final responseDecoded = json.decode(response.body);
 
