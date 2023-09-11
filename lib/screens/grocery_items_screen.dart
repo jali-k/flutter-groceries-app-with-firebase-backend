@@ -30,40 +30,52 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
     final url = Uri.https('flutter-shop-app-cc6dc-default-rtdb.firebaseio.com',
         'shopping-list.json');
 
-    final response = await http.get(url);
-    if (response.statusCode > 400) {
-      setState(() {
-        _error = "Something went wrong!";
-      });
-    }
+    try {
+      final response = await http.get(url);
 
-    if (response.body == 'null') {
+      print(response.body);
+
+      if (response.statusCode > 400) {
+        setState(() {
+          _error = "Something went wrong!";
+        });
+      }
+
+      if (response.body == 'null') {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+      final responseDecoded = json.decode(response.body);
+
+      List<GroceryItem> _loadedItems = [];
+
+      for (final item in responseDecoded.entries) {
+        final category = categories.entries
+            .firstWhere(
+                (element) => element.value.name == item.value['category'])
+            .value;
+
+        final eachItem = GroceryItem(
+            id: item.key,
+            name: item.value['name'],
+            quantity: item.value['quantity'],
+            category: category);
+        _loadedItems.add(eachItem);
+      }
+
       setState(() {
+        _groceryItems = _loadedItems;
         _isLoading = false;
       });
-      return;
-    }
-    final responseDecoded = json.decode(response.body);
-
-    List<GroceryItem> _loadedItems = [];
-
-    for (final item in responseDecoded.entries) {
-      final category = categories.entries
-          .firstWhere((element) => element.value.name == item.value['category'])
-          .value;
-
-      final eachItem = GroceryItem(
-          id: item.key,
-          name: item.value['name'],
-          quantity: item.value['quantity'],
-          category: category);
-      _loadedItems.add(eachItem);
+    } catch (err) {
+      setState(() {
+        _error = "Something went wrong, please check your internet connection!";
+        _isLoading = false;
+      });
     }
 
-    setState(() {
-      _groceryItems = _loadedItems;
-      _isLoading = false;
-    });
     print(_groceryItems);
   }
 
@@ -100,11 +112,16 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
       bodyContent = const Center(
         child: CircularProgressIndicator(),
       );
-      if (!(_error == null)) {
-        bodyContent = Center(
-          child: Text(_error.toString()),
-        );
-      }
+    } else if (!(_error == null)) {
+      bodyContent = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            _error.toString(),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
     } else if (_groceryItems.isEmpty) {
       bodyContent = const Center(child: Text("No groceries"));
     } else {
