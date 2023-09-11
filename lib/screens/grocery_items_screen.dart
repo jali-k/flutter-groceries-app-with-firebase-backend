@@ -17,6 +17,7 @@ class GroceryItemsScreen extends StatefulWidget {
 
 class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
   List<GroceryItem> _groceryItems = [];
+  var _isLoading = true;
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
 
     setState(() {
       _groceryItems = _loadedItems;
+      _isLoading = false;
     });
     print(_groceryItems);
   }
@@ -61,12 +63,14 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Your groceries"),
-        actions: [IconButton(onPressed: _addItem, icon: Icon(Icons.add))],
-      ),
-      body: _groceryItems.length == 0
+    Widget bodyContent;
+
+    if (_isLoading) {
+      bodyContent = Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      bodyContent = _groceryItems.length == 0
           ? Center(child: Text("No groceries"))
           : ListView.builder(
               itemCount: _groceryItems.length,
@@ -87,7 +91,13 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
                   trailing: Text(_groceryItems[index].quantity.toString()),
                 ),
               ),
-            ),
-    );
+            );
+    }
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text("Your groceries"),
+          actions: [IconButton(onPressed: _addItem, icon: Icon(Icons.add))],
+        ),
+        body: bodyContent);
   }
 }

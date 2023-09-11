@@ -15,6 +15,7 @@ class NewItemScreen extends StatefulWidget {
 }
 
 class _NewItemScreenState extends State<NewItemScreen> {
+  var _isSending = false;
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<
@@ -27,6 +28,9 @@ class _NewItemScreenState extends State<NewItemScreen> {
     void _saveItem() async {
       if (_formKey.currentState!.validate()) {
         _formKey.currentState!.save();
+        setState(() {
+          _isSending = true;
+        });
         final url = Uri.https(
             'flutter-shop-app-cc6dc-default-rtdb.firebaseio.com',
             'shopping-list.json');
@@ -148,8 +152,14 @@ class _NewItemScreenState extends State<NewItemScreen> {
                       child: Text("Reset"),
                     ),
                     ElevatedButton(
-                      onPressed: _saveItem,
-                      child: Text("Add item"),
+                      onPressed: _isSending ? null : _saveItem,
+                      child: _isSending
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : Text("Add item"),
                     )
                   ],
                 )
