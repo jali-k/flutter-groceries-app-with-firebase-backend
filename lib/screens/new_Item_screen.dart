@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list_app/data/categories.dart';
+import 'package:shopping_list_app/models/category.dart';
 
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
@@ -14,8 +15,17 @@ class _NewItemScreenState extends State<NewItemScreen> {
     final _formKey = GlobalKey<
         FormState>(); // That gives the access to the internal state of the form.
 
+    var _enteredName = '';
+    var _enteredQuantity = 0;
+    var _selectedCategory = categories[Categories.vegetables];
+
     void _saveItem() {
-      _formKey.currentState!.validate();
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        print(_enteredName);
+        print(_enteredQuantity);
+        print(_selectedCategory);
+      }
     }
 
     return Scaffold(
@@ -40,12 +50,16 @@ class _NewItemScreenState extends State<NewItemScreen> {
 
                     return null;
                   },
+                  onSaved: (newValue) {
+                    _enteredName = newValue!;
+                  },
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       child: TextFormField(
+                        initialValue: _enteredQuantity.toString(),
                         decoration: const InputDecoration(
                           label: Text("Quantity"),
                         ),
@@ -60,27 +74,35 @@ class _NewItemScreenState extends State<NewItemScreen> {
                           return null;
                         },
                         keyboardType: TextInputType.number,
+                        onSaved: (newValue) {
+                          _enteredQuantity = int.parse(newValue!);
+                        },
                       ),
                     ),
                     Expanded(
-                      child: DropdownButtonFormField(items: [
-                        for (final category in categories.entries)
-                          DropdownMenuItem(
-                              value: category.value,
-                              child: Row(
-                                children: [
-                                  Container(
-                                    height: 24,
-                                    width: 24,
-                                    color: category.value.color,
-                                  ),
-                                  const SizedBox(
-                                    width: 12,
-                                  ),
-                                  Text(category.value.name)
-                                ],
-                              ))
-                      ], onChanged: (value) {}),
+                      child: DropdownButtonFormField(
+                          value: _selectedCategory,
+                          items: [
+                            for (final category in categories.entries)
+                              DropdownMenuItem(
+                                  value: category.value,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 24,
+                                        width: 24,
+                                        color: category.value.color,
+                                      ),
+                                      const SizedBox(
+                                        width: 12,
+                                      ),
+                                      Text(category.value.name)
+                                    ],
+                                  ))
+                          ],
+                          onChanged: (value) {
+                            _selectedCategory = value!;
+                          }),
                     )
                   ],
                 ),
