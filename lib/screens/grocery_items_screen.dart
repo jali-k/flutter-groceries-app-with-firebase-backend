@@ -67,6 +67,24 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
     _loadItems();
   }
 
+  void _removeItem(GroceryItem item) async {
+    final index = _groceryItems.indexOf(item);
+    setState(() {
+      _groceryItems.removeAt(index);
+    });
+
+    final url = Uri.https('flutter-shop-app-cc6dc-default-rtdb.firebaseio.com',
+        'shopping-list/${item.id}.json');
+
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      setState(() {
+        _groceryItems.insert(index, item);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget bodyContent;
@@ -88,9 +106,7 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
         itemBuilder: (ctx, index) => Dismissible(
           key: ValueKey(_groceryItems[index]),
           onDismissed: (direction) {
-            setState(() {
-              _groceryItems.removeAt(index);
-            });
+            _removeItem(_groceryItems.elementAt(index));
           },
           child: ListTile(
             title: Text(_groceryItems[index].name),
