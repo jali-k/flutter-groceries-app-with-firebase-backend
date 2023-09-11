@@ -10,9 +10,14 @@ class GroceryItemsScreen extends StatefulWidget {
 }
 
 class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
-  void _addItem() {
-    Navigator.of(context)
+  final _groceryItems = [];
+  void _addItem() async {
+    final groceryItem = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const NewItemScreen()));
+
+    setState(() {
+      _groceryItems.add(groceryItem);
+    });
   }
 
   @override
@@ -22,18 +27,28 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
         title: const Text("Your groceries"),
         actions: [IconButton(onPressed: _addItem, icon: Icon(Icons.add))],
       ),
-      body: ListView.builder(
-        itemCount: groceryItems.length,
-        itemBuilder: (ctx, index) => ListTile(
-          title: Text(groceryItems[index].name),
-          leading: Container(
-            height: 24,
-            width: 24,
-            color: groceryItems[index].category.color,
-          ),
-          trailing: Text(groceryItems[index].quantity.toString()),
-        ),
-      ),
+      body: _groceryItems.length == 0
+          ? Center(child: Text("No groceries"))
+          : ListView.builder(
+              itemCount: _groceryItems.length,
+              itemBuilder: (ctx, index) => Dismissible(
+                key: ValueKey(_groceryItems[index]),
+                onDismissed: (direction) {
+                  setState(() {
+                    _groceryItems.removeAt(index);
+                  });
+                },
+                child: ListTile(
+                  title: Text(_groceryItems[index].name),
+                  leading: Container(
+                    height: 24,
+                    width: 24,
+                    color: _groceryItems[index].category.color,
+                  ),
+                  trailing: Text(_groceryItems[index].quantity.toString()),
+                ),
+              ),
+            ),
     );
   }
 }
