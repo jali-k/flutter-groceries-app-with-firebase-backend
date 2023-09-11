@@ -17,6 +17,7 @@ class GroceryItemsScreen extends StatefulWidget {
 class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
   List<GroceryItem> _groceryItems = [];
   var _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -30,6 +31,11 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
         'shopping-list.json');
 
     final response = await http.get(url);
+    if (response.statusCode > 400) {
+      setState(() {
+        _error = "Something went wrong!";
+      });
+    }
     final responseDecoded = json.decode(response.body);
 
     List<GroceryItem> _loadedItems = [];
@@ -38,6 +44,7 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
       final category = categories.entries
           .firstWhere((element) => element.value.name == item.value['category'])
           .value;
+
       final eachItem = GroceryItem(
           id: item.key,
           name: item.value['name'],
@@ -68,30 +75,36 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
       bodyContent = const Center(
         child: CircularProgressIndicator(),
       );
+      if (!(_error == null)) {
+        bodyContent = Center(
+          child: Text(_error.toString()),
+        );
+      }
+    } else if (_groceryItems.isEmpty) {
+      bodyContent = const Center(child: Text("No groceries"));
     } else {
-      bodyContent = _groceryItems.isEmpty
-          ? const Center(child: Text("No groceries"))
-          : ListView.builder(
-              itemCount: _groceryItems.length,
-              itemBuilder: (ctx, index) => Dismissible(
-                key: ValueKey(_groceryItems[index]),
-                onDismissed: (direction) {
-                  setState(() {
-                    _groceryItems.removeAt(index);
-                  });
-                },
-                child: ListTile(
-                  title: Text(_groceryItems[index].name),
-                  leading: Container(
-                    height: 24,
-                    width: 24,
-                    color: _groceryItems[index].category.color,
-                  ),
-                  trailing: Text(_groceryItems[index].quantity.toString()),
-                ),
-              ),
-            );
+      bodyContent = ListView.builder(
+        itemCount: _groceryItems.length,
+        itemBuilder: (ctx, index) => Dismissible(
+          key: ValueKey(_groceryItems[index]),
+          onDismissed: (direction) {
+            setState(() {
+              _groceryItems.removeAt(index);
+            });
+          },
+          child: ListTile(
+            title: Text(_groceryItems[index].name),
+            leading: Container(
+              height: 24,
+              width: 24,
+              color: _groceryItems[index].category.color,
+            ),
+            trailing: Text(_groceryItems[index].quantity.toString()),
+          ),
+        ),
+      );
     }
+
     return Scaffold(
         appBar: AppBar(
           title: const Text("Your groceries"),
