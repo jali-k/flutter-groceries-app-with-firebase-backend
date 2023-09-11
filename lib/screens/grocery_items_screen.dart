@@ -36,6 +36,12 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
         _error = "Something went wrong!";
       });
     }
+
+    if (response.body == 'null') {
+      setState(() {
+        _isLoading = false;
+      });
+    }
     final responseDecoded = json.decode(response.body);
 
     List<GroceryItem> _loadedItems = [];
