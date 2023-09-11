@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shopping_list_app/data/categories.dart';
 
-import 'package:shopping_list_app/data/dummy_items.dart';
 import 'package:shopping_list_app/models/grocery_item.dart';
 import 'package:shopping_list_app/screens/new_Item_screen.dart';
 
@@ -66,12 +65,12 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
     Widget bodyContent;
 
     if (_isLoading) {
-      bodyContent = Center(
+      bodyContent = const Center(
         child: CircularProgressIndicator(),
       );
     } else {
-      bodyContent = _groceryItems.length == 0
-          ? Center(child: Text("No groceries"))
+      bodyContent = _groceryItems.isEmpty
+          ? const Center(child: Text("No groceries"))
           : ListView.builder(
               itemCount: _groceryItems.length,
               itemBuilder: (ctx, index) => Dismissible(
@@ -96,7 +95,9 @@ class _GroceryItemsScreenState extends State<GroceryItemsScreen> {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Your groceries"),
-          actions: [IconButton(onPressed: _addItem, icon: Icon(Icons.add))],
+          actions: [
+            IconButton(onPressed: _addItem, icon: const Icon(Icons.add))
+          ],
         ),
         body: bodyContent);
   }

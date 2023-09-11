@@ -154,12 +154,12 @@ class _NewItemScreenState extends State<NewItemScreen> {
                     ElevatedButton(
                       onPressed: _isSending ? null : _saveItem,
                       child: _isSending
-                          ? SizedBox(
+                          ? const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(),
                             )
-                          : Text("Add item"),
+                          : const Text("Add item"),
                     )
                   ],
                 )
